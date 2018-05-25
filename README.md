@@ -1,5 +1,7 @@
 Encrypt: a general purpose encryption library
 =============================================
+[![Build Status](https://travis-ci.org/harvard-nrg/encrypt.svg?branch=master)](https://travis-ci.org/harvard-nrg/encrypt)
+
 Encrypt provides a simple API and command line tool for encrypting and decrypting
 files and blobs of data.
 
