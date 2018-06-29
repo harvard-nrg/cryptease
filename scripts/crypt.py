@@ -8,17 +8,21 @@ import logging
 import getpass as gp
 import encrypt as enc
 import argparse as ap
-
-try:
-    import urlparse as up # py2k
-except ImportError:
-    import urllib.parse as up # py3k
-
 try:
     import paramiko
     logging.getLogger('paramiko').setLevel(logging.ERROR)
 except ImportError:
     pass
+
+# python 3 compat
+try:
+    input = raw_input
+except NameError:
+    pass
+try:
+    import urlparse as up
+except ImportError:
+    import urllib.parse as up
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
@@ -127,7 +131,7 @@ def overwrite(f):
     count = 1
     ans = None
     while ans not in ['y', 'n']:
-        ans = raw_input('overwrite existing file [y/n]: ').lower()
+        ans = input('overwrite existing file [y/n]: ').lower()
         count += 1
         if count > 3:
             return False
