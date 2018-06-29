@@ -8,7 +8,12 @@ import logging
 import getpass as gp
 import encrypt as enc
 import argparse as ap
-import urlparse as up
+
+try:
+    import urlparse as up # py2k
+except ImportError:
+    import urllib.parse as up # py3k
+
 try:
     import paramiko
     logging.getLogger('paramiko').setLevel(logging.ERROR)
