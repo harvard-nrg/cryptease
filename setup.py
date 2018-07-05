@@ -1,9 +1,5 @@
 from setuptools import setup, find_packages
 
-requires = [
-    'cryptography'
-]
-
 setup(name='encrypt',
       description='encrypt',
       author='Neuroinformatics Research Group',
@@ -13,10 +9,6 @@ setup(name='encrypt',
       scripts=[
         'scripts/crypt.py',
         'scripts/keyring.py'
-      ],
-      install_requires=requires,
-      extras_require={
-        'ssh':  ['paramiko']
-      }
+      ]
 )
 

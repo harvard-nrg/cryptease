@@ -6,4 +6,4 @@ name = "pypi"
 [packages]
 cryptography = "*"
 paramiko = "*"
-"e1839a8" = {path = ".", editable = true}
+encrypt = {path = ".", editable = true}
