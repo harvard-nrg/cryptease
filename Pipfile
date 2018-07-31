@@ -7,3 +7,4 @@ name = "pypi"
 cryptography = "*"
 paramiko = "*"
 encrypt = {path = ".", editable = true}
+pytest = "*"
