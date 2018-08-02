@@ -3,8 +3,8 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-[packages]
-cryptography = "*"
-paramiko = "*"
-encrypt = {path = ".", editable = true}
+[dev-packages]
 pytest = "*"
+
+[packages]
+encrypt = {path = ".", extras = ["ssh"], editable = true}
