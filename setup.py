@@ -12,7 +12,7 @@ test_requirements = [
 ]
 
 about = dict()
-with open(os.path.join(here, 'encrypt', '__version__.py'), 'r') as f:
+with open(os.path.join(here, 'cryptease', '__version__.py'), 'r') as f:
     exec(f.read(), about)
 
 setup(

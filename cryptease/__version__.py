@@ -1,4 +1,4 @@
-__title__ = 'encrypt'
+__title__ = 'cryptease'
 __description__ = 'Fall over easy encryption'
 __url__ = 'https://www.neuroinfo.org'
 __version__ = '0.1'

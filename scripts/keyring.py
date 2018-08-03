@@ -7,8 +7,8 @@ import sys
 import json
 import logging
 import getpass as gp
-import encrypt as enc
 import argparse as ap
+import cryptease as crypt
 
 logger = logging.getLogger(os.path.basename(__file__))
 logging.basicConfig(level=logging.INFO)
@@ -31,7 +31,7 @@ def main():
 
     # get salt from raw file header
     salt = None
-    header,_ = enc.read_header(raw)
+    header,_ = crypt.read_header(raw)
     salt = header['kdf'].salt
 
     # read passphrase from an env or command line
@@ -41,11 +41,11 @@ def main():
         passphrase = gp.getpass('enter passphrase: ')
 
     # construct decryption key
-    key = enc.kdf(passphrase, salt=salt)
+    key = crypt.kdf(passphrase, salt=salt)
 
     # decrypt the keyring content
     content = ''
-    for chunk in enc.decrypt(raw, key):
+    for chunk in crypt.decrypt(raw, key):
         content += chunk
     js = json.loads(content)
 

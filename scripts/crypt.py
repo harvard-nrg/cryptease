@@ -6,8 +6,8 @@ import os
 import sys
 import logging
 import getpass as gp
-import encrypt as enc
 import argparse as ap
+import cryptease as crypt
 try:
     import paramiko
     logging.getLogger('paramiko').setLevel(logging.ERROR)
@@ -48,7 +48,7 @@ def main():
     # get salt from file header if decrypting
     salt = None
     if args.decrypt:
-        header,_ = enc.read_header(raw)
+        header,_ = crypt.read_header(raw)
         salt = header['kdf'].salt
 
     # read passphrase (ask twice for --encrypt)
@@ -63,27 +63,27 @@ def main():
                 sys.exit(1)
 
     # get key
-    key = enc.kdf(passphrase, salt=salt)
+    key = crypt.kdf(passphrase, salt=salt)
 
     # lock or unlock the file
     if args.decrypt:
         if not args.output_file:
             stdout = os.fdopen(sys.stdout.fileno(), 'wb')
-            for chunk in enc.decrypt(raw, key):
+            for chunk in crypt.decrypt(raw, key):
                 stdout.write(chunk)
         else:
             if overwrite(args.output_file):
                 logger.info('saving {}'.format(args.output_file))
-                enc.decrypt(raw, key, filename=args.output_file)
+                crypt.decrypt(raw, key, filename=args.output_file)
     elif args.encrypt:
         if not args.output_file:
             stdout = os.fdopen(sys.stdout.fileno(), 'wb')
-            for chunk in enc.encrypt(raw, key):
+            for chunk in crypt.encrypt(raw, key):
                 stdout.write(chunk)
         else:
             if overwrite(args.output_file):
                 logger.info('saving {}'.format(args.output_file))
-                enc.encrypt(raw, key, filename=args.output_file)
+                crypt.encrypt(raw, key, filename=args.output_file)
 
 def get(f):
     '''

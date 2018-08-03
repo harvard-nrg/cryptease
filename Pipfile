@@ -7,4 +7,4 @@ name = "pypi"
 pytest = "*"
 
 [packages]
-encrypt = {path = ".", extras = ["ssh"], editable = true}
+cryptease = {path = ".", extras = ["ssh"], editable = true}

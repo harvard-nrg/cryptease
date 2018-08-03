@@ -5,7 +5,7 @@ import pickle
 import logging
 import tempfile as tf
 import collections as col
-import encrypt.compat as compat
+import cryptease.compat as compat
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -27,7 +27,7 @@ def kdf(passphrase, salt=None):
     
     Example::
         >>> import base64
-        >>> from encrypt import kdf
+        >>> from cryptease import kdf
         >>> key = kdf('password')
         >>> base64.b64encode(key.key)
         't0BfCC5i1WqvucYsrL4H8/YlGOakMJimZLrQ5sXUzgY='
@@ -40,7 +40,7 @@ def kdf(passphrase, salt=None):
     :param salt: Encryption salt
     :type salt: str
     :returns: Encryption key
-    :rtype: :mod:`encrypt.Key`
+    :rtype: :mod:`cryptease.Key`
     '''
     length = 32
     rounds = 100000
@@ -67,7 +67,7 @@ def key_from_file(raw, passphrase):
     :param passphrase: Passphrase
     :type passphrase: str
     :returns: Encryption key
-    :rtype: :mod:`encrypt.Key`
+    :rtype: :mod:`cryptease.Key`
     '''
     header,_ = read_header(raw)
     return kdf(passphrase, salt=header['kdf'].salt)
@@ -77,11 +77,11 @@ def randkey():
     Generate a random encryption key
     
     Example::
-        >>> from encrypt import randkey
+        >>> from cryptease import randkey
         >>> key = randkey()
     
     :returns: Encryption key
-    :rtype: :mod:`encrypt.Key`
+    :rtype: :mod:`cryptease.Key`
     '''
     key = os.urandom(32)
     return Key(key=key, metadata=Random(source='urandom'))
@@ -94,7 +94,7 @@ def encrypt(raw, key, chunk_size=1e8, filename=None):
     :param raw: Raw content
     :type raw: a .read()-supporting file-like object
     :param key: Encryption key
-    :type key: :mod:`encrypt.Key`
+    :type key: :mod:`cryptease.Key`
     :param chunk_size: Chunk size in bytes
     :type chunk_size: int
     '''
@@ -110,7 +110,7 @@ def encrypt_to_stream(raw, key, chunk_size=1e8):
     :param raw: Raw content
     :type raw: a .read()-supporting file-like object
     :param key: Encryption key
-    :type key: :mod:`encrypt.Key`
+    :type key: :mod:`cryptease.Key`
     :param chunk_size: Chunk size in bytes
     :type chunk_size: int
     '''
@@ -169,11 +169,11 @@ def encrypt_to_file(filename, raw, key, chunk_size=1e8):
     :param raw: Raw content
     :type raw: a .read()-supporting file-like object
     :param key: Encryption key
-    :type key: :mod:`encrypt.Key`
+    :type key: :mod:`cryptease.Key`
     '''
     filename = os.path.expanduser(filename)
     dirname = os.path.dirname(filename)
-    with tf.NamedTemporaryFile(dir=dirname, prefix='.encrypt', suffix='.tmp',
+    with tf.NamedTemporaryFile(dir=dirname, prefix='.cryptease', suffix='.tmp',
                                delete=False) as tmp:
         for chunk in encrypt(raw, key, chunk_size):
             tmp.write(chunk)
@@ -187,7 +187,7 @@ def decrypt(raw, key, chunk_size=1e8, filename=None):
     :param raw: Raw encrypted content
     :type raw: a .read()-supporting file-like object
     :param key: Encryption key
-    :type key: :mod:`encrypt.Key`
+    :type key: :mod:`cryptease.Key`
     :param chunk_size: Chunk size in bytes
     :type chunk_size: int
     :param filename: Path to save file
@@ -205,7 +205,7 @@ def decrypt_to_stream(raw, key, chunk_size=1e8):
     :param raw: Raw encrypted content
     :type raw: a .read()-supporting file-like object
     :param key: Encryption key
-    :type key: :mod:`encrypt.Key`
+    :type key: :mod:`cryptease.Key`
     :param chunk_size: Chunk size in bytes
     :type chunk_size: int
     '''
@@ -233,7 +233,7 @@ def decrypt_to_file(filename, raw, key, chunk_size=1e8):
     :param raw: Raw encrypted content
     :type raw: a .read()-supporting file-like object
     :param key: Encryption key
-    :type key: :mod:`encrypt.Key`
+    :type key: :mod:`cryptease.Key`
     :param chunk_size: Chunk size in bytes
     :type chunk_size: int
     '''

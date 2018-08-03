@@ -1,9 +1,9 @@
-Encrypt: a general purpose encryption library
-=============================================
-[![Build Status](https://travis-ci.org/harvard-nrg/encrypt.svg?branch=master)](https://travis-ci.org/harvard-nrg/encrypt)
+Cryptease: easier encryption
+============================
+[![Build Status](https://travis-ci.org/harvard-nrg/cryptease.svg?branch=master)](https://travis-ci.org/harvard-nrg/cryptease)
 
-Encrypt provides a simple API and command line tool for encrypting and decrypting
-files and blobs of data.
+Cryptease provides an simple API and command line tool for encrypting and decrypting
+files and other blobs of data.
 
 ## Table of contents
 1. [Requirements](#requirements)
@@ -14,28 +14,13 @@ files and blobs of data.
 6. [Comments](#comments)
 
 ## Requirements
-Encrypt works with Python versions 2 and 3.
+Cryptease works with Python versions 2 and 3.
 
 ## Installation
-The simplest way to install `encrypt` is with the excellent `pipenv` ✨🍰✨ 
-package manager
+The easiest way to install `cryptease` is with `pip`
 
 ```bash
-$ pip install --user pipenv
-$ git clone https://github.com/harvard-nrg/encrypt.git
-$ cd encrypt
-$ pipenv install
-  🐍   ▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉ 17/17 — 00:00:05
-```
-
-You can also install using plain old `pip`
-
-```bash
-$ pip install --user pipenv
-$ git clone https://github.com/harvard-nrg/encrypt.git
-$ cd encrypt
-$ pipenv lock -r > requirements.txt
-$ pip install -r requirements.txt
+pip install cryptease
 ```
 
 ## Basic command line usage
@@ -46,56 +31,55 @@ used to quickly encrypt a file
 $ crypt.py --encrypt file.txt --output-file file.enc
 ```
 
-and to decrypt a file
+and decrypt a file
 
 ```bash
 $ crypt.py --decrypt file.enc --output-file file.dec
 ```
 
 ## Basic API usage
-The `encrypt` library provides an API to build custom software and applications
-that need to encrypt or decrypt files, and perhaps do so chunk by chunk.
-
-Use `encrypt.encrypt` to encrypt content in memory using AES-256 encryption
+The `cryptease` library provides an way to build custom software and applications
+that need to encrypt or decrypt files in one shot or one chunk at a time. Use 
+`cryptease.encrypt` to encrypt a string in memory using AES-256 encryption
 
 ```python
 import io
-import encrypt as enc
+import cryptease as crypt
 
 content = 'Hello, World!'
 
-key = enc.kdf('password')
+key = crypt.kdf('password')
 
 ciphertext = b''
-for chunk in enc.encrypt(content, key):
+for chunk in crypt.encrypt(content, key):
     ciphertext += chunk
 
-for chunk in enc.decrypt(io.BytesIO(ciphertext), key):
+for chunk in crypt.decrypt(io.BytesIO(ciphertext), key):
     print chunk,
 ```
 
-To serialize the encrpyted data (i.e., cipher text) and key metadata to a 
-flat file, simply pass the `filename` argument
+To serialize the encrpyted data (i.e., cipher text) and some metadata about the 
+key to a flat file, simply pass the `filename` argument
 
 ```python
 import io
-import encrypt as enc
+import cryptease as crypt
 
 content = 'Hello, World!'
 
-key = enc.kdf('password')
-enc.encrypt(io.BytesIO(content), key, filename='file.enc')
+key = crypt.kdf('password')
+crypt.encrypt(io.BytesIO(content), key, filename='file.enc')
 ```
 
 To deserialize the encrypted file to a decrypted file, simply `open` the file,
-pass it to `encrypt.encrypt`, and pass the `filename` parameter to 
-`encrypt.decrypt`
+pass it to `cryptease.encrypt`, and pass the `filename` parameter to 
+`cryptease.decrypt`
 
 ```python
-import encrypt as enc
+import cryptease as crypt
 
 with open('file.enc') as fp:
-    key = enc.key_from_file(fp, 'password')
-    enc.decrypt(fp, key, filename='file.dec')
+    key = crypt.key_from_file(fp, 'password')
+    crypt.decrypt(fp, key, filename='file.dec')
 ```
 
