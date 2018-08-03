@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-File encryption/decryption utility
+Cryptease encrypt/decrypt command line interface
 '''
 import os
 import sys
@@ -42,15 +42,6 @@ def main():
         help='File to encrypt or decrypt')
     args = parser.parse_args()
 
-    # get file content
-    raw = get(args.file)
-
-    # get salt from file header if decrypting
-    salt = None
-    if args.decrypt:
-        header,_ = crypt.read_header(raw)
-        salt = header['kdf'].salt
-
     # read passphrase (ask twice for --encrypt)
     if 'ENCRYPT_PASS' in os.environ:
         passphrase = os.environ['ENCRYPT_PASS']
@@ -62,8 +53,14 @@ def main():
                 logger.critical('passphrases do not match')
                 sys.exit(1)
 
-    # get key
-    key = crypt.kdf(passphrase, salt=salt)
+    # get file handle
+    raw = get(args.file)
+
+    # get key using file header, or build a new one
+    if args.decrypt:
+        key = crypt.key_from_file(raw, passphrase)
+    else:
+        key = crypt.kdf(passphrase)
 
     # lock or unlock the file
     if args.decrypt:

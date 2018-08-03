@@ -1,5 +1,7 @@
 import os
 import io
+import json
+import base64
 import struct
 import pickle
 import logging
@@ -56,7 +58,16 @@ def kdf(passphrase, salt=None):
             iterations=rounds,
             backend=backend)
     key = kdf.derive(compat.bytes(passphrase, encoding='utf8'))
-    return Key(key=key, metadata=PBKDF2(alg='sha256', rounds=rounds, salt=salt))
+    metadata = {
+        'function': 'PBKDF2HMAC',
+        'params': {
+            'salt': base64.b64encode(salt).decode('utf-8'),
+            'length': length,
+            'iterations': rounds,
+            'algorithm': 'sha256'
+        }
+    }
+    return Key(key=key, metadata=metadata)
 
 def key_from_file(raw, passphrase):
     '''
@@ -70,7 +81,8 @@ def key_from_file(raw, passphrase):
     :rtype: :mod:`cryptease.Key`
     '''
     header,_ = read_header(raw)
-    return kdf(passphrase, salt=header['kdf'].salt)
+    salt = base64.b64decode(header['kdf']['params']['salt'])
+    return kdf(passphrase, salt=salt)
 
 def randkey():
     '''
@@ -84,7 +96,13 @@ def randkey():
     :rtype: :mod:`cryptease.Key`
     '''
     key = os.urandom(32)
-    return Key(key=key, metadata=Random(source='urandom'))
+    metadata = {
+        'function': 'RAND',
+        'params': {
+            'source': 'urandom'
+        }
+    }
+    return Key(key=key, metadata=metadata)
 
 def encrypt(raw, key, chunk_size=1e8, filename=None):
     '''
@@ -118,7 +136,14 @@ def encrypt_to_stream(raw, key, chunk_size=1e8):
     # generate unique initialization vector
     iv = os.urandom(16)
     # generate header content
-    header = __header(AES(bits=256, mode='CFB8'), key.metadata, iv)
+    ciphermeta = {
+        'function': 'AES',
+        'params': {
+            'bits': 256,
+            'mode': 'CFB8'
+        }
+    }
+    header = create_header(ciphermeta, key.metadata, iv)
     while True:
         chunk = header.read(chunk_size)
         if not chunk:
@@ -142,20 +167,20 @@ def encrypt_to_stream(raw, key, chunk_size=1e8):
         yield encryptor.update(chunk)
     yield encryptor.finalize()
 
-def __header(ciphermeta, kdfmeta, iv):
+def create_header(ciphermeta, kdfmeta, iv):
     '''
     Helper function to create encryption header
     '''
     bio = io.BytesIO()
     header = {
-        'cipher' : ciphermeta,
-        'kdf' : kdfmeta,
-        'iv' : iv
+        'cipher': ciphermeta,
+        'kdf': kdfmeta,
+        'iv': base64.b64encode(iv).decode('utf-8')
     }
-    bin_header = pickle.dumps(header)
-    bin_header_len = struct.pack(Int.letter, len(bin_header))
+    header_len = io.BytesIO().write(json.dumps(header).encode())
+    bin_header_len = struct.pack(Int.letter, header_len)
     bio.write(bin_header_len)
-    bio.write(bin_header)
+    bio.write(json.dumps(header).encode())
     bio.seek(0)
     return bio
 
@@ -257,7 +282,7 @@ def read_header(raw):
     _length = raw.read(Int.size)
     length = struct.unpack(Int.letter, _length)[0]
     _header = raw.read(length)
-    header = compat.pickle.loads(_header)
+    header = json.loads(_header.decode('utf-8'))
     raw.seek(0)
     return header,length + Int.size
 
