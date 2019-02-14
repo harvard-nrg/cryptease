@@ -2,8 +2,11 @@ Cryptease: easier encryption
 ============================
 [![Build Status](https://travis-ci.org/harvard-nrg/cryptease.svg?branch=master)](https://travis-ci.org/harvard-nrg/cryptease)
 
-Cryptease provides an simple API and command line tool for encrypting and decrypting
-files and other blobs of data.
+cryptease provides an simple API and command line tool for encrypting and decrypting
+files and other blobs of data. cryptease is able to encrypt and decrypt content in 
+chunks, which can be useful for encrypting and decrypting extremely large files. It 
+also supports opening encrypted files as a file-like-object for reading decrypted 
+content on the fly.
 
 ## Table of contents
 1. [Requirements](#requirements)
