@@ -104,7 +104,7 @@ def randkey():
     }
     return Key(key=key, metadata=metadata)
 
-def encrypt(raw, key, chunk_size=1e8, filename=None):
+def encrypt(raw, key, chunk_size=1e8, filename=None, permissions=None):
     '''
     Encrypt content using AES Cipher Feedback (CFB 8-bit shift register)
     and return as a stream of bytes or save to a file
@@ -118,7 +118,7 @@ def encrypt(raw, key, chunk_size=1e8, filename=None):
     '''
     if not filename:
         return encrypt_to_stream(raw, key, chunk_size)
-    return encrypt_to_file(filename, raw, key, chunk_size)
+    return encrypt_to_file(filename, raw, key, chunk_size, permissions)
         
 def encrypt_to_stream(raw, key, chunk_size=1e8):
     '''
@@ -184,7 +184,7 @@ def create_header(ciphermeta, kdfmeta, iv):
     bio.seek(0)
     return bio
 
-def encrypt_to_file(filename, raw, key, chunk_size=1e8):
+def encrypt_to_file(filename, raw, key, chunk_size=1e8, permissions=None):
     '''
     Encrypt content using AES Cipher Feedback (CFB 8-bit shift register)
     and safely save to a file
@@ -202,6 +202,8 @@ def encrypt_to_file(filename, raw, key, chunk_size=1e8):
                                delete=False) as tmp:
         for chunk in encrypt(raw, key, chunk_size):
             tmp.write(chunk)
+    if permissions:
+        os.chmod(tmp.name, permissions)
     os.rename(tmp.name, filename)
 
 def decrypt(raw, key, chunk_size=1e8, filename=None):
